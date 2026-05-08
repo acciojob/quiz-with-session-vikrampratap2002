@@ -4,17 +4,17 @@ const questionsElement = document.getElementById("questions");
 const submitButton = document.getElementById("submit");
 const scoreElement = document.getElementById("score");
 
-// Get saved progress from sessionStorage
+// Get saved progress
 let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || {};
 
-// Show saved score from localStorage
+// Show stored score
 const savedScore = localStorage.getItem("score");
+
 if (savedScore !== null) {
   scoreElement.textContent = `Your score is ${savedScore} out of 5.`;
 }
 
 // Do not change code below this line
-// This code will just display the questions to the screen
 const questions = [
   {
     question: "What is the capital of France?",
@@ -57,22 +57,35 @@ function renderQuestions() {
       const choice = question.choices[j];
 
       const choiceElement = document.createElement("input");
+
       choiceElement.setAttribute("type", "radio");
       choiceElement.setAttribute("name", `question-${i}`);
       choiceElement.setAttribute("value", choice);
 
-      // Restore checked answers
+      // Restore checked state after refresh
       if (userAnswers[i] === choice) {
         choiceElement.checked = true;
+        choiceElement.setAttribute("checked", "true");
       }
 
-      // Save progress in sessionStorage
+      // Save progress
       choiceElement.addEventListener("change", () => {
         userAnswers[i] = choice;
+
         sessionStorage.setItem(
           "progress",
           JSON.stringify(userAnswers)
         );
+
+        // Remove checked attribute from same group
+        const radios = document.getElementsByName(`question-${i}`);
+
+        radios.forEach((radio) => {
+          radio.removeAttribute("checked");
+        });
+
+        // Add checked attribute
+        choiceElement.setAttribute("checked", "true");
       });
 
       const choiceText = document.createTextNode(choice);
@@ -87,7 +100,7 @@ function renderQuestions() {
 
 renderQuestions();
 
-// Submit Quiz
+// Submit quiz
 submitButton.addEventListener("click", () => {
   let score = 0;
 
@@ -99,6 +112,5 @@ submitButton.addEventListener("click", () => {
 
   scoreElement.textContent = `Your score is ${score} out of 5.`;
 
-  // Save score in localStorage
   localStorage.setItem("score", score);
 });
